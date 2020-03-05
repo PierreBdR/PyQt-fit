@@ -18,7 +18,7 @@ class Standard(object):
         return y + res
 
     @staticmethod
-    def Dfun(y1, y0, dy):
+    def Dfun(y1, y0):
         """
         J(y1-y0) = J(y1)-J(y0) = -J(y0)
         where J is the jacobian

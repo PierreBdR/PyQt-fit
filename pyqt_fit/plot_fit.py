@@ -29,7 +29,7 @@ def plot_dist_residuals(res):
 
     :returns: the handle toward the histogram and the plot of the fitted normal distribution
     """
-    ph = hist(res, normed=True)
+    ph = hist(res, density=True)
     xr = arange(res.min(), res.max(), (res.max() - res.min()) / 1024)
     yr = stats.norm(0, res.std()).pdf(xr)
     pn = plot(xr, yr, 'r--')
@@ -252,7 +252,7 @@ def plot1d(result, loc=0, fig=None, res_fig=None):
     if result.CI:
         for p, (low, high) in izip(result.CI, result.CIs[0]):
             l = plot(result.eval_points, low, '--', label='%g%% CI' % (p,))[0]
-            h = plot(result.eval_points, high, l.get_color() + '--')[0]
+            h = plot(result.eval_points, high, '--', color=l.get_color())[0]
             p_CIs += [l, h]
     if result.param_names:
         param_strs = ", ".join("%s=%g" % (n, v) for n, v in izip(result.param_names, result.popt))

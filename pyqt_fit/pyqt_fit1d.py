@@ -1,15 +1,14 @@
-#!/usr/bin/env python
-from __future__ import division, print_function, absolute_import
+#QtWidgetoQtWidgets!/usr/bin/env python
 from . import functions, residuals, plot_fit, bootstrap
 from .compat import user_text, CSV_READ_FLAGS
 from .compat import unicode_csv_reader as csv_reader
 
-from PyQt4 import QtGui, QtCore, uic
-from PyQt4.QtCore import pyqtSignature, Qt
-from PyQt4.QtGui import QMessageBox
+from PyQt5 import QtGui, QtWidgets, QtCore, uic
+from PyQt5.QtCore import pyqtSlot, Qt
+from PyQt5.QtWidgets import QMessageBox
 import matplotlib
 from numpy import nan, array, ma, arange
-from path import path
+from path import Path
 from .curve_fitting import CurveFitting
 import sys
 from pylab import close as close_figure
@@ -101,10 +100,10 @@ class ParametersModel(QtCore.QAbstractTableModel):
         return False
 
 
-class QtFitDlg(QtGui.QDialog):
+class QtFitDlg(QtWidgets.QDialog):
     def __init__(self, *args, **kwords):
-        QtGui.QDialog.__init__(self, *args, **kwords)
-        p = (path(__file__).dirname() / 'qt_fit.ui').abspath()
+        QtWidgets.QDialog.__init__(self, *args, **kwords)
+        p = (Path(__file__).dirname() / 'qt_fit.ui').abspath()
         uic.loadUi(p, self)
         if sys.platform != "darwin":
             self.selectInputFile.setMaximumWidth(32)
@@ -112,8 +111,8 @@ class QtFitDlg(QtGui.QDialog):
         self.validator = QtGui.QDoubleValidator()
         self.xMin.setValidator(self.validator)
         self.xMax.setValidator(self.validator)
-        self.buttonBox.addButton("Plot", QtGui.QDialogButtonBox.ApplyRole)
-        self.buttonBox.addButton("Close Plots", QtGui.QDialogButtonBox.ResetRole)
+        self.buttonBox.addButton("Plot", QtWidgets.QDialogButtonBox.ApplyRole)
+        self.buttonBox.addButton("Close Plots", QtWidgets.QDialogButtonBox.ResetRole)
         self.init()
 
     def init(self):
@@ -142,42 +141,44 @@ class QtFitDlg(QtGui.QDialog):
         self.residuals.setCurrentIndex(list_res.index("Standard"))
         self.on_computeCI_toggled(self.computeCI.isChecked())
 
-    @pyqtSignature("const QString&")
+    @pyqtSlot(str)
     def on_function_currentIndexChanged(self, txt):
         print("New function: {}".format(txt))
         self.fct = functions.get(str(txt))
 
-    @pyqtSignature("const QString&")
+    @pyqtSlot(str)
     def on_residuals_currentIndexChanged(self, txt):
         print("New residual: {}".format(txt))
         self.res = residuals.get(str(txt))
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_selectInputFile_clicked(self):
-        filename = QtGui.QFileDialog.getOpenFileName(self, "Open CSV file",
+        filename, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Open CSV file",
                                                      filter="CSV file (*.csv);;All Files (*.*)")
         if filename:
             self.input = filename
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_selectOutputFile_clicked(self):
-        filename = QtGui.QFileDialog.getSaveFileName(self, "Save CSV file",
+        filename = QtWidgets.QFileDialog.getSaveFileName(self, "Save CSV file",
                                                      filter="CSV file (*.csv);;All Files (*.*)")
         if filename:
             self.output = filename
 
-    @pyqtSignature("const QString&")
+    @pyqtSlot(str)
     def on_fieldXbox_currentIndexChanged(self, txt):
         self.fieldX = txt
 
-    @pyqtSignature("const QString&")
+    @pyqtSlot(str)
     def on_fieldYbox_currentIndexChanged(self, txt):
         self.fieldY = txt
 
-    def _getFct(self):
+    @property
+    def fct(self):
         return self._fct
 
-    def _setFct(self, f):
+    @fct.setter
+    def fct(self, f):
         if f != self._fct:
             self._fct = f
             if self.function.currentText() != f.name:
@@ -185,28 +186,27 @@ class QtFitDlg(QtGui.QDialog):
             if self.input:
                 self.updateParameters()
 
-    fct = property(_getFct, _setFct)
-
-    def _getRes(self):
+    @property
+    def res(self):
         return self._res
 
-    def _setRes(self, res):
+    @res.setter
+    def res(self, res):
         if res != self._res:
             self._res = res
             if self.residuals.currentText() != res.name:
                 self.residuals.setCurrentIndex(self.residuals.findText(res.name))
-    res = property(_getRes, _setRes)
 
-    @pyqtSignature("const QString&")
+    @pyqtSlot(str)
     def on_inputFile_textChanged(self, txt):
-        txt = path(txt)
+        txt = Path(txt)
         self.input = txt
 
     def _getInput(self):
         return self._input
 
     def _setInput(self, txt):
-        txt = path(txt)
+        txt = Path(txt)
         if txt != self._input and txt.isfile():
             try:
                 data = None
@@ -258,62 +258,66 @@ class QtFitDlg(QtGui.QDialog):
             self.fieldX = self._header[0]
             self.fieldY = self._header[1]
 
-    def _getOutput(self):
+    @property
+    def output(self):
         return self._output
 
-    def _setOutput(self, txt):
-        txt = path(txt)
+    @output.setter
+    def output(self, txt):
+        txt = Path(txt)
         if self._output != txt:
             if txt and not txt.endswith(".csv"):
                 txt += ".csv"
             self._output = txt
             if self._output != self.outputFile.text():
                 self.outputFile.setText(self._output)
-    output = property(_getOutput, _setOutput)
 
-    @pyqtSignature("const QString&")
+    @pyqtSlot(str)
     def on_outputFile_textChanged(self, txt):
         self.output = txt
 
-    def _getWriteResult(self):
+    @property
+    def writeResult(self):
         return self._write
 
-    def _setWriteResult(self, on):
+    @writeResult.setter
+    def writeResult(self, on):
         on = bool(on)
         if on != self._write:
             self._write = on
             self.writeOutput.setChecked(on)
-    writeResult = property(_getWriteResult, _setWriteResult)
 
-    @pyqtSignature("bool")
+    @pyqtSlot(bool)
     def on_writeOutput_toggled(self, on):
         self.writeResult = on
 
-    def _getHeader(self):
+    @property
+    def header(self):
         return self._header
-    header = property(_getHeader)
 
-    def _getFieldX(self):
+    @property
+    def fieldX(self):
         return self._fieldX
 
-    def _setFieldX(self, txt):
+    @fieldX.setter
+    def fieldX(self, txt):
         if txt != self._fieldX and txt in self.header:
             self._fieldX = txt
             if txt != self.fieldXbox.currentText():
                 self.fieldXbox.setCurrentIndex(self.fieldXbox.findText(txt))
             self.updateParameters()
-    fieldX = property(_getFieldX, _setFieldX)
 
-    def _getFieldY(self):
+    @property
+    def fieldY(self):
         return self._fieldY
 
-    def _setFieldY(self, txt):
+    @fieldY.setter
+    def fieldY(self, txt):
         if txt != self._fieldY and txt in self.header:
             self._fieldY = txt
             if txt != self.fieldYbox.currentText():
                 self.fieldYbox.setCurrentIndex(self.fieldYbox.findText(txt))
             self.updateParameters()
-    fieldY = property(_getFieldY, _setFieldY)
 
     def updateParameters(self):
         if self._data is not None and \
@@ -340,7 +344,7 @@ class QtFitDlg(QtGui.QDialog):
         #elif self.fieldY is None:
             #print "Missing fieldY"
 
-    @pyqtSignature("bool")
+    @pyqtSlot(bool)
     def on_computeCI_toggled(self, on):
         if on:
             meth = self.CImethod.currentText()
@@ -349,11 +353,11 @@ class QtFitDlg(QtGui.QDialog):
         else:
             self.CI = None
 
-    @pyqtSignature("const QString&")
+    @pyqtSlot(str)
     def on_CIvalues_textEdited(self, txt):
         self._CIchanged = True
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_CIvalues_editingFinished(self):
         if self.CI:
             try:
@@ -367,16 +371,18 @@ class QtFitDlg(QtGui.QDialog):
                 self.CIvalues.setText("")
             self._CIchanged = False
 
-    @pyqtSignature("const QString&")
+    @pyqtSlot(str)
     def on_CImethod_currentIndexChanged(self, txt):
         if self.CI:
             meth = user_text(txt)
             self.setCIMethod(meth)
 
-    def _getCI(self):
+    @property
+    def CI(self):
         return self._CI
 
-    def _setCI(self, val):
+    @CI.setter
+    def CI(self, val):
         if val is not None:
             val = (user_text(val[0]), [float(f) for f in val[1]])
         if val != self._CI:
@@ -386,7 +392,6 @@ class QtFitDlg(QtGui.QDialog):
                 if meth != self.CImethod.currentText():
                     self.CImethod.setCurrentIndex(self.CImethod.findText(meth))
                 self.CIvalues.setText(";".join("{:g}".format(f) for f in ints))
-    CI = property(_getCI, _setCI)
 
     def setCIMethod(self, meth):
         if meth != self._CI[0]:
@@ -399,15 +404,15 @@ class QtFitDlg(QtGui.QDialog):
             self._CI = (self._CI[0], ints)
             self.CIvalues.setText(";".join("{:g}".format(f) for f in ints))
 
-    @pyqtSignature("QAbstractButton*")
+    @pyqtSlot(QtWidgets.QAbstractButton)
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
-        if role == QtGui.QDialogButtonBox.ResetRole:
+        if role == QtWidgets.QDialogButtonBox.ResetRole:
             close_figure('all')
-        elif role == QtGui.QDialogButtonBox.ApplyRole:
+        elif role == QtWidgets.QDialogButtonBox.ApplyRole:
             self.plot()
 
-    @pyqtSignature("")
+    @pyqtSlot()
     def on_buttonBox_rejected(self):
         close_figure('all')
 
@@ -494,7 +499,7 @@ def main():
     return wnd
 
 if __name__ == "__main__":
-    app = QtGui.QApplication(sys.argv)
+    app = QtWidgets.QApplication(sys.argv)
     matplotlib.interactive(True)
     wnd = main()
     app.exec_()
