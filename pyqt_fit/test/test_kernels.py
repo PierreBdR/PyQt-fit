@@ -1,5 +1,3 @@
-from __future__ import division, absolute_import, print_function
-
 from .. import kernels
 from .. import _kernels
 

@@ -1,5 +1,3 @@
-from __future__ import division, absolute_import, print_function
-
 from .. import nonparam_regression, npr_methods
 import numpy as np
 

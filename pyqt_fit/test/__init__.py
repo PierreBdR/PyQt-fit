@@ -1,5 +1,3 @@
-from __future__ import division, absolute_import, print_function
-
 __all__ = ["test_bootstrap",
            "test_bootstrap_workers",
            "test_curve_fitting",

@@ -1,5 +1,3 @@
-from __future__ import division, absolute_import, print_function
-
 from .. import kde
 from .. import kde_methods
 import numpy as np
@@ -64,7 +62,7 @@ class TestKDE1D(kde_utils.KDETester):
     def grid_method_works(self, k, method, name):
         xs, ys = k.grid(4000)
         tot = integrate.simps(ys, xs)
-        acc = max(method.normed_accuracy, method.grid_accuracy)
+        acc = 100*max(method.normed_accuracy, method.grid_accuracy)
         assert abs(tot - 1) < acc, "Error, {} should be close to 1".format(tot)
 
     def test_copy(self):
@@ -164,7 +162,7 @@ class TestISF(kde_utils.KDETester):
     def grid_method_works(self, k, method, name):
         comp_sf, xs = k.isf_grid()
         ref_sf = k.sf(xs)
-        acc = max(method.grid_accuracy, method.normed_accuracy)
+        acc = 100*max(method.grid_accuracy, method.normed_accuracy)
         np.testing.assert_allclose(comp_sf, ref_sf, acc, acc)
 
     def kernel_works(self, ker, name):
@@ -196,7 +194,7 @@ class TestICDF(kde_utils.KDETester):
     def grid_method_works(self, k, method, name):
         comp_cdf, xs = k.icdf_grid()
         ref_cdf = k.cdf(xs)
-        acc = max(method.grid_accuracy, method.normed_accuracy)
+        acc = 100*max(method.grid_accuracy, method.normed_accuracy)
         np.testing.assert_allclose(comp_cdf, ref_cdf, acc, acc)
 
     def kernel_works(self, ker, name):
