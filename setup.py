@@ -13,7 +13,11 @@ version_filename = os.path.join(os.path.dirname(__file__), 'pyqt_fit', 'version.
 with open(version_filename, "r") as f:
     __version__ = f.read().strip()
 
+with open("README.md", "r") as fh:
+    long_description = fh.read()
+
 extra = {}
+
 
 setup(name='PyQt-Fit',
       version=__version__,
@@ -42,9 +46,11 @@ setup(name='PyQt-Fit',
                         ],
       extras_require={'Cython': ["Cython >=0.17"]
                       },
+      long_description=long_description,
+      long_description_content_type="text/markdown",
       license='LICENSE.txt',
       classifiers=['Development Status :: 4 - Beta',
-                   'Environment :: X11 Applications :: Qt5',
+                   'Environment :: X11 Applications :: Qt',
                    'Intended Audience :: Science/Research',
                    'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
                    'Natural Language :: English',
