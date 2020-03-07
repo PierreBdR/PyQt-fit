@@ -2,7 +2,7 @@
 import matplotlib
 matplotlib.use('Qt5Agg')
 from pyqt_fit import pyqt_fit1d
-from PyQt5 import QtWidgets
+from qtpy import QtWidgets
 import matplotlib
 
 import sys

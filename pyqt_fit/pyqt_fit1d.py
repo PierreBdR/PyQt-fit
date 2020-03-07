@@ -3,9 +3,9 @@ from . import functions, residuals, plot_fit, bootstrap
 from .compat import user_text, CSV_READ_FLAGS
 from .compat import unicode_csv_reader as csv_reader
 
-from PyQt5 import QtGui, QtWidgets, QtCore, uic
-from PyQt5.QtCore import pyqtSlot, Qt
-from PyQt5.QtWidgets import QMessageBox
+from qtpy import QtGui, QtWidgets, QtCore, uic
+from qtpy.QtCore import Slot, Qt
+from qtpy.QtWidgets import QMessageBox
 import matplotlib
 from numpy import nan, array, ma, arange
 from path import Path
@@ -141,35 +141,35 @@ class QtFitDlg(QtWidgets.QDialog):
         self.residuals.setCurrentIndex(list_res.index("Standard"))
         self.on_computeCI_toggled(self.computeCI.isChecked())
 
-    @pyqtSlot(str)
+    @Slot(str)
     def on_function_currentIndexChanged(self, txt):
         print("New function: {}".format(txt))
         self.fct = functions.get(str(txt))
 
-    @pyqtSlot(str)
+    @Slot(str)
     def on_residuals_currentIndexChanged(self, txt):
         print("New residual: {}".format(txt))
         self.res = residuals.get(str(txt))
 
-    @pyqtSlot()
+    @Slot()
     def on_selectInputFile_clicked(self):
         filename, _ = QtWidgets.QFileDialog.getOpenFileName(self, "Open CSV file",
                                                      filter="CSV file (*.csv);;All Files (*.*)")
         if filename:
             self.input = filename
 
-    @pyqtSlot()
+    @Slot()
     def on_selectOutputFile_clicked(self):
         filename = QtWidgets.QFileDialog.getSaveFileName(self, "Save CSV file",
                                                      filter="CSV file (*.csv);;All Files (*.*)")
         if filename:
             self.output = filename
 
-    @pyqtSlot(str)
+    @Slot(str)
     def on_fieldXbox_currentIndexChanged(self, txt):
         self.fieldX = txt
 
-    @pyqtSlot(str)
+    @Slot(str)
     def on_fieldYbox_currentIndexChanged(self, txt):
         self.fieldY = txt
 
@@ -197,7 +197,7 @@ class QtFitDlg(QtWidgets.QDialog):
             if self.residuals.currentText() != res.name:
                 self.residuals.setCurrentIndex(self.residuals.findText(res.name))
 
-    @pyqtSlot(str)
+    @Slot(str)
     def on_inputFile_textChanged(self, txt):
         txt = Path(txt)
         self.input = txt
@@ -272,7 +272,7 @@ class QtFitDlg(QtWidgets.QDialog):
             if self._output != self.outputFile.text():
                 self.outputFile.setText(self._output)
 
-    @pyqtSlot(str)
+    @Slot(str)
     def on_outputFile_textChanged(self, txt):
         self.output = txt
 
@@ -287,7 +287,7 @@ class QtFitDlg(QtWidgets.QDialog):
             self._write = on
             self.writeOutput.setChecked(on)
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def on_writeOutput_toggled(self, on):
         self.writeResult = on
 
@@ -344,7 +344,7 @@ class QtFitDlg(QtWidgets.QDialog):
         #elif self.fieldY is None:
             #print "Missing fieldY"
 
-    @pyqtSlot(bool)
+    @Slot(bool)
     def on_computeCI_toggled(self, on):
         if on:
             meth = self.CImethod.currentText()
@@ -353,11 +353,11 @@ class QtFitDlg(QtWidgets.QDialog):
         else:
             self.CI = None
 
-    @pyqtSlot(str)
+    @Slot(str)
     def on_CIvalues_textEdited(self, txt):
         self._CIchanged = True
 
-    @pyqtSlot()
+    @Slot()
     def on_CIvalues_editingFinished(self):
         if self.CI:
             try:
@@ -371,7 +371,7 @@ class QtFitDlg(QtWidgets.QDialog):
                 self.CIvalues.setText("")
             self._CIchanged = False
 
-    @pyqtSlot(str)
+    @Slot(str)
     def on_CImethod_currentIndexChanged(self, txt):
         if self.CI:
             meth = user_text(txt)
@@ -404,7 +404,7 @@ class QtFitDlg(QtWidgets.QDialog):
             self._CI = (self._CI[0], ints)
             self.CIvalues.setText(";".join("{:g}".format(f) for f in ints))
 
-    @pyqtSlot(QtWidgets.QAbstractButton)
+    @Slot(QtWidgets.QAbstractButton)
     def on_buttonBox_clicked(self, button):
         role = self.buttonBox.buttonRole(button)
         if role == QtWidgets.QDialogButtonBox.ResetRole:
@@ -412,7 +412,7 @@ class QtFitDlg(QtWidgets.QDialog):
         elif role == QtWidgets.QDialogButtonBox.ApplyRole:
             self.plot()
 
-    @pyqtSlot()
+    @Slot()
     def on_buttonBox_rejected(self):
         close_figure('all')
 
