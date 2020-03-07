@@ -1,4 +1,3 @@
-========
 PyQt-Fit
 ========
 
@@ -24,9 +23,10 @@ PyQt-Fit can also be used from the python interpreter. Here is a typical session
     >>> def fct(params, x):
     ...     (a0, a1, a2) = params
     ...     return a0 + a1*x + a2*x*x
-    >>> fit = pyqt_fit.CurveFitting(x, y, (0,1,0), fct)
-    >>> result = plot_fit.fit_evaluation(fit, x, y)
-    >>> print(fit(x)) # Display the estimated values
+    >>> est = pyqt_fit.CurveFitting(x, y, p0=(0,1,0), function=fct)
+    >>> est.fit() # Find the optimal parameters
+    >>> result = plot_fit.fit_evaluation(est, x, y)
+    >>> print(est(x)) # Display the estimated values
     >>> plot_fit.plot1d(result)
     >>> pylab.show()
 
@@ -51,8 +51,9 @@ CSV file for further analysis in your favorite software (including most
 spreadsheet programs).
 
 
-Note
-----
+Release Notes
+-------------
+Version 1.4.0 is now using QtPy to abstract PySide or PyQt and Python 3.6.
 
- Version 1.3.0 is not fully compatible with previous versions. Although
+Version 1.3.0 is not fully compatible with previous versions. Although
 the interfaces offer better flexibility, it will require some code change.
