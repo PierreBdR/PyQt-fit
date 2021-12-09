@@ -96,7 +96,7 @@ def load(find_functions, search_path=None):
     for ext in module_exts:
         for f in search_path.files("*" + ext):
             if f.basename()[:2] != '__':
-                module_name = f.namebase
+                module_name = f.stem
                 modules.add(module_name)
     for module_name in modules:
         pack_name = '%s.%s_%s' % (caller_module.__name__,
